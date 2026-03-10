@@ -1,5 +1,10 @@
 const form = document.getElementById('prospectForm');
 const feedback = document.getElementById('feedback');
+const registrationDateField = document.querySelector('input[name="registration_date"]');
+
+if (registrationDateField && !registrationDateField.value) {
+  registrationDateField.value = new Date().toISOString().slice(0, 10);
+}
 
 form?.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -16,10 +21,15 @@ form?.addEventListener('submit', async (event) => {
 
     const result = await response.json();
     feedback.className = response.ok ? 'feedback success' : 'feedback error';
-    feedback.textContent = result.message;
 
-    if (response.ok) {
+    if (response.ok && result.classification) {
+      feedback.textContent = `${result.message} Priority status: ${result.classification}.`;
       form.reset();
+      if (registrationDateField) {
+        registrationDateField.value = new Date().toISOString().slice(0, 10);
+      }
+    } else {
+      feedback.textContent = result.message;
     }
   } catch (error) {
     feedback.className = 'feedback error';

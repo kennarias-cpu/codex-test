@@ -4,26 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Osa Golf Course | Lead Generation</title>
+  <meta name="description" content="Discover premium golf lifestyle and real estate investment opportunities at Osa Golf Course, Costa Rica." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
   <header class="hero">
     <div class="overlay"></div>
     <div class="hero-content">
-      <p class="eyebrow">Costa Rica • Premium Residential & Golf Community</p>
+      <p class="eyebrow">Costa Rica • Private Golf & Residential Community</p>
       <h1>Discover Golf Lifestyle and Investment Opportunities at Osa Golf Course</h1>
-      <p class="subtitle">Own a lot, join an exclusive golf membership, or schedule a private site visit in one of Costa Rica's most promising destinations.</p>
-      <a href="#lead-form" class="cta-button">Request Information</a>
+      <p class="subtitle">Secure your place in a premium destination where championship-level golf, preserved nature, and high-value real estate create long-term growth potential.</p>
+      <div class="hero-actions">
+        <a href="#lead-form" class="cta-button">Request Information</a>
+        <a href="#investment-highlights" class="cta-button ghost">View Investment Highlights</a>
+      </div>
+      <div class="trust-strip">
+        <span>✓ Personalized advisory</span>
+        <span>✓ International buyer support</span>
+        <span>✓ Private tours available</span>
+      </div>
     </div>
   </header>
+
+  <section class="stats-band">
+    <article><strong>International</strong><span>Buyer-Focused Sales Process</span></article>
+    <article><strong>Premium</strong><span>Golf & Nature Lifestyle Positioning</span></article>
+    <article><strong>High Potential</strong><span>Long-Term Real Estate Appreciation</span></article>
+  </section>
 
   <main class="content-wrapper">
     <section class="card" id="lead-form">
       <h2>Tell us about your interest</h2>
-      <p class="section-description">Our advisors will contact you with curated opportunities based on your profile.</p>
+      <p class="section-description">Our investment and lifestyle advisors will send curated options based on your goals.</p>
       <form id="prospectForm">
         <div class="grid">
           <label>Full Name<input type="text" name="full_name" required /></label>
@@ -45,6 +60,34 @@
       </form>
       <div id="feedback" class="feedback" aria-live="polite"></div>
       <p class="admin-link">Internal team? <a href="/admin">View prospect dashboard</a>.</p>
+    </section>
+
+    <section id="investment-highlights" class="insight-grid">
+      <article class="insight-card">
+        <h3>Exclusive Inventory Access</h3>
+        <p>Receive early access to selected lots and strategic zones with strong lifestyle and resale appeal.</p>
+      </article>
+      <article class="insight-card">
+        <h3>Golf-Centered Community</h3>
+        <p>A private setting designed around world-class golf experiences, wellness, and social prestige.</p>
+      </article>
+      <article class="insight-card">
+        <h3>Nature + Investment Value</h3>
+        <p>Combine natural beauty, Costa Rica destination demand, and premium positioning in one acquisition.</p>
+      </article>
+    </section>
+
+    <section class="testimonial-card">
+      <blockquote>
+        “The team made our decision simple: clear lot options, transparent guidance, and a vision that blends golf lifestyle with smart long-term investment.”
+      </blockquote>
+      <p>— International Buyer, Private Tour Guest</p>
+    </section>
+
+    <section class="conversion-band">
+      <h3>Book your private consultation and site visit</h3>
+      <p>Tell us your profile today and get a personalized proposal with recommended lots, membership options, and next steps.</p>
+      <a href="#lead-form" class="cta-button">Request Information</a>
     </section>
   </main>
 

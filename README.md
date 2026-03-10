@@ -4,6 +4,7 @@ Minimal full-stack web app to capture prospects interested in lot sales, golf me
 
 ## Features
 - Premium, responsive landing page in English for international audiences.
+- Conversion-focused content blocks (trust signals, investment highlights, social proof, and strong CTAs).
 - Prospect form with all required fields plus **Registration Date**.
 - SQLite persistence for every submitted lead.
 - Automatic lead scoring:
