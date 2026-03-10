@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Osa Golf Course | Lead Generation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="overlay"></div>
+    <div class="hero-content">
+      <p class="eyebrow">Costa Rica • Premium Residential & Golf Community</p>
+      <h1>Discover Golf Lifestyle and Investment Opportunities at Osa Golf Course</h1>
+      <p class="subtitle">Own a lot, join an exclusive golf membership, or schedule a private site visit in one of Costa Rica's most promising destinations.</p>
+      <a href="#lead-form" class="cta-button">Request Information</a>
+    </div>
+  </header>
+
+  <main class="content-wrapper">
+    <section class="card" id="lead-form">
+      <h2>Tell us about your interest</h2>
+      <p class="section-description">Our advisors will contact you with curated opportunities based on your profile.</p>
+      <form id="prospectForm">
+        <div class="grid">
+          <label>Full Name<input type="text" name="full_name" required /></label>
+          <label>Email<input type="email" name="email" required /></label>
+          <label>Phone / WhatsApp<input type="text" name="phone_whatsapp" required /></label>
+          <label>Country<input type="text" name="country" required /></label>
+          <label>Budget (USD)<input type="number" name="budget" min="1000" step="1000" required /></label>
+          <label>Interest Type
+            <select name="interest_type" required>
+              <option value="">Select one</option>
+              <option>Lot Purchase</option><option>Golf Membership</option><option>Golf Visit</option><option>Investment Opportunity</option>
+            </select>
+          </label>
+        </div>
+        <label>Preferred Lot or Area<input type="text" name="preferred_lot_area" placeholder="e.g., Ocean View Ridge" /></label>
+        <label>Message<textarea name="message" rows="4" placeholder="Tell us what you're looking for"></textarea></label>
+        <button type="submit">Request Information</button>
+      </form>
+      <div id="feedback" class="feedback" aria-live="polite"></div>
+      <p class="admin-link">Internal team? <a href="/admin">View prospect dashboard</a>.</p>
+    </section>
+  </main>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
