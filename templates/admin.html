@@ -6,18 +6,46 @@
   <title>Osa Golf Course | Prospect Dashboard</title>
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
-<body class="admin-body">
+<body class="admin-body golf-bg">
   <main class="dashboard-container">
     <div class="dashboard-header">
       <h1>Prospect Dashboard</h1>
-      <a class="cta-button secondary" href="/">Back to Landing Page</a>
+      <div class="header-actions">
+        <a class="cta-button" href="{{export_href}}">Export CSV</a>
+        <a class="cta-button secondary" href="/">Back to Landing Page</a>
+      </div>
     </div>
+
+    <form class="filters" method="GET" action="/admin">
+      <label>Country
+        <select name="country">
+          {{country_options}}
+        </select>
+      </label>
+
+      <label>Interest Type
+        <select name="interest_type">
+          {{interest_options}}
+        </select>
+      </label>
+
+      <label>Search (name or email)
+        <input type="text" name="q" value="{{search_query}}" placeholder="e.g. Michael or example@email.com" />
+      </label>
+
+      <div class="filter-actions">
+        <button type="submit">Apply Filters</button>
+        <a class="text-link" href="/admin">Reset</a>
+      </div>
+    </form>
+
+    <p class="hint">Leads are sorted by priority: <strong>Hot</strong> → <strong>Warm</strong> → <strong>Cold</strong>, then by newest submission.</p>
 
     <div class="table-wrapper">
       <table>
         <thead>
           <tr>
-            <th>Date</th><th>Name</th><th>Contact</th><th>Country</th><th>Budget</th><th>Interest</th><th>Preferred Area</th><th>Classification</th><th>Message</th>
+            <th>Created At</th><th>Registration Date</th><th>Name</th><th>Contact</th><th>Country</th><th>Budget</th><th>Interest</th><th>Preferred Area</th><th>Classification</th><th>Message</th>
           </tr>
         </thead>
         <tbody>
