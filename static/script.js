@@ -21,15 +21,13 @@ form?.addEventListener('submit', async (event) => {
 
     const result = await response.json();
     feedback.className = response.ok ? 'feedback success' : 'feedback error';
+    feedback.textContent = result.message;
 
-    if (response.ok && result.classification) {
-      feedback.textContent = `${result.message} Priority status: ${result.classification}.`;
+    if (response.ok) {
       form.reset();
       if (registrationDateField) {
         registrationDateField.value = new Date().toISOString().slice(0, 10);
       }
-    } else {
-      feedback.textContent = result.message;
     }
   } catch (error) {
     feedback.className = 'feedback error';

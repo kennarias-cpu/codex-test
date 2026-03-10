@@ -4,7 +4,7 @@ Minimal full-stack web app to capture prospects interested in lot sales, golf me
 
 ## Features
 - Premium, responsive landing page in English for international audiences.
-- Conversion-focused content blocks (trust signals, investment highlights, social proof, and strong CTAs).
+- Sales-focused messaging aligned to exclusivity, nature, golf lifestyle, and investment opportunity.
 - Prospect form with all required fields plus **Registration Date**.
 - SQLite persistence for every submitted lead.
 - Automatic lead scoring:
@@ -19,6 +19,7 @@ Minimal full-stack web app to capture prospects interested in lot sales, golf me
   - Export filtered leads to CSV
 - Leads sorted by priority (Hot → Warm → Cold) and then newest date.
 - Automatic professional thank-you message after form submission.
+- Automatic follow-up email content generation and queueing for each new prospect.
 - Sample data seeding for testing.
 - Runs with Python standard library only (no external packages).
 
