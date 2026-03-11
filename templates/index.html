@@ -3,80 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Osa Golf Course | Lead Generation</title>
-  <meta name="description" content="Discover premium golf lifestyle and real estate investment opportunities at Osa Golf Course, Costa Rica." />
+  <title>Osa Golf Course | Discover the Golf Lifestyle in Costa Rica</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
-  <header class="hero">
-    <div class="overlay"></div>
-    <div class="hero-content">
-      <p class="eyebrow">Costa Rica • Private Golf & Residential Community</p>
-      <h1>Discover the Golf Lifestyle in Costa Rica</h1>
-      <p class="subtitle">Exclusive residential lots surrounded by nature and a beautiful golf course in the South Pacific of Costa Rica.</p>
-      <p class="hero-description">Osa Golf Course offers a unique opportunity to own property inside a peaceful golf community surrounded by tropical rainforest, fresh air, and incredible natural beauty. Whether you are looking for a lifestyle change, retirement property, or investment opportunity, Osa Golf Course is a place where nature and golf meet.</p>
-      <a href="#lead-form" class="cta-button">Request Information</a>
-    </div>
-  </header>
+  <div id="root"></div>
 
-  <main class="content-wrapper">
-    <section class="card benefits-card" id="benefits">
-      <h2>Why Osa Golf Course?</h2>
-      <ul class="benefit-list">
-        <li>Beautiful 9-hole golf course surrounded by nature</li>
-        <li>Peaceful community away from crowded tourist areas</li>
-        <li>Residential lots available for custom homes</li>
-        <li>Located in the South Pacific of Costa Rica</li>
-        <li>Ideal for retirement, vacation homes, or investment</li>
-        <li>A unique lifestyle connected with nature and golf</li>
-      </ul>
-    </section>
-
-    <section class="card" id="lead-form">
-      <h2>Request Information About Available Lots</h2>
-      <p class="section-description">Fill out the form below and our team will send you detailed information about available lots, pricing, and visiting opportunities.</p>
-      <form id="prospectForm">
-        <div class="grid">
-          <label>Full Name<input type="text" name="full_name" required /></label>
-          <label>Email Address<input type="email" name="email" required /></label>
-          <label>Phone / WhatsApp<input type="text" name="phone_whatsapp" required /></label>
-          <label>Country of Residence<input type="text" name="country" required /></label>
-          <label>Estimated Budget<input type="number" name="budget" min="1000" step="1000" required /></label>
-          <label>Interest Type
-            <select name="interest_type" required>
-              <option value="">Select one</option>
-              <option>Residential Lot Purchase</option>
-              <option>Golf Membership</option>
-              <option>Property Investment</option>
-              <option>Schedule a Visit</option>
-            </select>
-          </label>
-          <label>Registration Date<input type="date" name="registration_date" /></label>
-          <label>Preferred Lot or Area (optional)<input type="text" name="preferred_lot_area" placeholder="e.g., Ocean View Ridge" /></label>
-        </div>
-        <label>Message<textarea name="message" rows="4" placeholder="Tell us what you're looking for"></textarea></label>
-        <button type="submit">Send Request</button>
-      </form>
-      <div id="feedback" class="feedback" aria-live="polite"></div>
-      <p class="admin-link">Internal team? <a href="/admin">View prospect dashboard</a>.</p>
-    </section>
-
-    <section class="card investment-card" id="investment">
-      <h2>Investment Opportunity</h2>
-      <p>Costa Rica continues to be one of the most attractive destinations for real estate investment in Latin America. With its political stability, natural beauty, and growing international interest, properties located in nature-oriented communities offer strong long-term value.</p>
-      <p>Owning a lot at Osa Golf Course allows you to enjoy both lifestyle and investment potential in one of the most unique regions of the country.</p>
-    </section>
-
-    <section class="conversion-band">
-      <h3>Discover Available Lots Today</h3>
-      <p>Experience nature, golf, and investment opportunities in one place.</p>
-      <a href="#lead-form" class="cta-button">Get Lot Information</a>
-    </section>
-  </main>
-
-  <script src="/static/script.js"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel" src="/static/landing-app.jsx"></script>
 </body>
 </html>
