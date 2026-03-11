@@ -1,74 +1,65 @@
-# Osa Golf Course Lead Generation MVP (React + Flask + SQLite)
+# Osa Golf Course Lead Generation MVP (Local, Reliable)
 
-A complete local MVP for capturing and managing international prospects interested in Osa Golf Course (Costa Rica).
+Fully working local web app to capture, classify, and review leads for Osa Golf Course.
 
-## Stack
-- **Frontend:** React (client-side)
-- **Backend:** Flask
-- **Database:** SQLite
+## 1) Project structure (frontend vs backend)
 
-## Features
-- Premium landing page with real-estate and golf lifestyle tone.
-- Hero, benefits, and conversion-focused lead form sections.
-- Lead form with required validation and inline friendly error messages.
-- SQLite lead storage with automatic lead classification:
-  - Hot Lead: >= 120000 USD
-  - Warm Lead: 80000 to 119999 USD
-  - Cold Lead: < 80000 USD
-- Admin dashboard with:
-  - Newest-first table
-  - Search by name/email
+- **Backend:** `app.py` (Python HTTP server + API + SQLite logic)
+- **Frontend:**
+  - Pages: `templates/index.html` and `templates/admin.html`
+  - Client JS: `static/landing-app.js` and `static/admin-app.js`
+  - Styles: `static/styles.css`
+- **Database:** `leads.db` (auto-created on first run)
+
+## 2) What this MVP includes
+
+- Landing page with required copy and premium style.
+- Lead form with inline validation and friendly errors.
+- API endpoint for lead submission (`POST /api/leads`).
+- SQLite storage of leads with required fields.
+- Automatic lead classification:
+  - Hot Lead: `>= 120000`
+  - Warm Lead: `80000 - 119999`
+  - Cold Lead: `< 80000`
+- Admin dashboard (`/admin`) with:
+  - Newest-first list
+  - Search by name or email
   - Filter by lead status
-- Automatic success message after submission.
-- Welcome email template endpoint and queue table for future real email integration.
+- Welcome email template endpoint (`GET /api/welcome-template`)
+- Queue table `outbound_emails` for future email sending integration.
 
-## Project Structure
-
-```bash
-.
-├── app.py
-├── requirements.txt
-├── leads.db                    # auto-created
-├── templates/
-│   ├── index.html
-│   └── admin.html
-└── static/
-    ├── styles.css
-    ├── landing-app.jsx
-    └── admin-app.jsx
-```
-
-## Local Setup
-
-1. Create and activate virtual environment:
+## 3) Exact local run steps
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-2. Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-3. Run the app:
-
-```bash
+cd /workspace/codex-test
 python3 app.py
 ```
 
-4. Open:
+Then open:
 - Landing page: `http://127.0.0.1:5000/`
 - Admin dashboard: `http://127.0.0.1:5000/admin`
 
-## API Endpoints
+## 4) API endpoints
+
 - `GET /api/health`
 - `POST /api/leads`
 - `GET /api/leads?q=<name_or_email>&status=<Hot Lead|Warm Lead|Cold Lead>`
 - `GET /api/welcome-template`
 
-## Notes
-- `outbound_emails` stores queued welcome email content for future SMTP/provider integration.
-- Seed sample leads are inserted automatically the first time if database is empty.
+## 5) Quick verification checklist
+
+1. Open `/` and confirm no 404.
+2. Submit lead form.
+3. Confirm success message appears.
+4. Open `/admin` and confirm new lead appears.
+5. Confirm `leads.db` exists in project root.
+6. Optionally inspect DB quickly:
+
+```bash
+sqlite3 leads.db "SELECT id, full_name, email, lead_status, created_at FROM leads ORDER BY id DESC LIMIT 5;"
+```
+
+## 6) Notes
+
+- Architecture was simplified to avoid broken dependency/CDN startup issues and ensure reliable local preview.
+- No external pip/npm install is required for this local MVP.

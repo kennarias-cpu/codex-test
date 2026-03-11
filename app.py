@@ -1,15 +1,16 @@
 from __future__ import annotations
 
+import json
 import sqlite3
+from http import HTTPStatus
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any
-
-from flask import Flask, jsonify, render_template, request
+from urllib.parse import parse_qs, urlparse
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "leads.db"
-
-app = Flask(__name__)
+TEMPLATES_DIR = BASE_DIR / "templates"
+STATIC_DIR = BASE_DIR / "static"
 
 SUCCESS_MESSAGE = (
     "Thank you for contacting Osa Golf Course.\n\n"
@@ -40,12 +41,12 @@ WELCOME_EMAIL_BODY = (
     "Osa Golf Course Team"
 )
 
-INTEREST_OPTIONS = [
+INTEREST_OPTIONS = {
     "Residential Lot Purchase",
     "Golf Membership",
     "Property Investment",
     "Schedule a Visit",
-]
+}
 
 
 def get_db_connection() -> sqlite3.Connection:
@@ -81,7 +82,6 @@ def init_db() -> None:
         )
         """
     )
-
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS outbound_emails (
@@ -96,7 +96,6 @@ def init_db() -> None:
         )
         """
     )
-
     conn.commit()
     conn.close()
 
@@ -106,9 +105,28 @@ def seed_data() -> None:
     total = conn.execute("SELECT COUNT(*) AS total FROM leads").fetchone()["total"]
     if total == 0:
         sample = [
-            ("Michael Turner", "michael@example.com", "+1 305 555 1987", "USA", 160000, "Residential Lot Purchase", "Ocean View Ridge", "Interested in premium lots.", classify_lead_status(160000)),
-            ("Andrea Lopez", "andrea@example.com", "+506 8888 1000", "Costa Rica", 92000, "Schedule a Visit", "Clubhouse Area", "Looking for a private tour.", classify_lead_status(92000)),
-            ("Sven Meyer", "sven@example.com", "+49 1512 990000", "Germany", 65000, "Golf Membership", "", "Please send membership details.", classify_lead_status(65000)),
+            (
+                "Michael Turner",
+                "michael@example.com",
+                "+1 305 555 1987",
+                "USA",
+                160000,
+                "Residential Lot Purchase",
+                "Ocean View Ridge",
+                "Interested in premium lots.",
+                classify_lead_status(160000),
+            ),
+            (
+                "Andrea Lopez",
+                "andrea@example.com",
+                "+506 8888 1000",
+                "Costa Rica",
+                92000,
+                "Schedule a Visit",
+                "Clubhouse Area",
+                "Looking for a private tour.",
+                classify_lead_status(92000),
+            ),
         ]
         conn.executemany(
             """
@@ -123,123 +141,154 @@ def seed_data() -> None:
     conn.close()
 
 
-@app.route("/")
-def home() -> str:
-    return render_template("index.html")
+def json_response(handler: BaseHTTPRequestHandler, status: int, payload: dict) -> None:
+    body = json.dumps(payload).encode("utf-8")
+    handler.send_response(status)
+    handler.send_header("Content-Type", "application/json")
+    handler.send_header("Content-Length", str(len(body)))
+    handler.end_headers()
+    handler.wfile.write(body)
 
 
-@app.route("/admin")
-def admin() -> str:
-    return render_template("admin.html")
+class AppHandler(BaseHTTPRequestHandler):
+    def do_GET(self) -> None:  # noqa: N802
+        parsed = urlparse(self.path)
+        path = parsed.path
+
+        if path == "/":
+            self._send_file(TEMPLATES_DIR / "index.html", "text/html; charset=utf-8")
+            return
+        if path == "/admin":
+            self._send_file(TEMPLATES_DIR / "admin.html", "text/html; charset=utf-8")
+            return
+        if path == "/api/health":
+            json_response(self, HTTPStatus.OK, {"status": "ok"})
+            return
+        if path == "/api/welcome-template":
+            json_response(self, HTTPStatus.OK, {"subject": WELCOME_EMAIL_SUBJECT, "body": WELCOME_EMAIL_BODY})
+            return
+        if path == "/api/leads":
+            self._handle_list_leads(parsed.query)
+            return
+        if path.startswith("/static/"):
+            fp = STATIC_DIR / path.removeprefix("/static/")
+            if fp.exists() and fp.is_file():
+                content_type = "text/plain"
+                if fp.suffix == ".css":
+                    content_type = "text/css"
+                elif fp.suffix == ".js":
+                    content_type = "application/javascript"
+                self._send_file(fp, content_type)
+                return
+
+        self.send_error(HTTPStatus.NOT_FOUND, "Not Found")
+
+    def do_POST(self) -> None:  # noqa: N802
+        if urlparse(self.path).path != "/api/leads":
+            self.send_error(HTTPStatus.NOT_FOUND, "Not Found")
+            return
+
+        length = int(self.headers.get("Content-Length", "0"))
+        raw = self.rfile.read(length).decode("utf-8")
+        try:
+            data = json.loads(raw or "{}")
+        except json.JSONDecodeError:
+            json_response(self, HTTPStatus.BAD_REQUEST, {"success": False, "message": "Invalid JSON body."})
+            return
+
+        required = ["full_name", "email", "phone", "country", "budget", "interest_type"]
+        missing = [f for f in required if not str(data.get(f, "")).strip()]
+        if missing:
+            json_response(
+                self,
+                HTTPStatus.BAD_REQUEST,
+                {"success": False, "message": f"Missing required fields: {', '.join(missing)}"},
+            )
+            return
+
+        try:
+            budget = float(data["budget"])
+        except (TypeError, ValueError):
+            json_response(self, HTTPStatus.BAD_REQUEST, {"success": False, "message": "Estimated budget must be a valid number."})
+            return
+
+        interest = str(data.get("interest_type", "")).strip()
+        if interest not in INTEREST_OPTIONS:
+            json_response(self, HTTPStatus.BAD_REQUEST, {"success": False, "message": "Invalid interest type selected."})
+            return
+
+        lead_status = classify_lead_status(budget)
+        conn = get_db_connection()
+        cursor = conn.execute(
+            """
+            INSERT INTO leads (
+                full_name, email, phone, country, budget, interest_type,
+                preferred_lot_or_area, message, lead_status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                data.get("full_name", "").strip(),
+                data.get("email", "").strip(),
+                data.get("phone", "").strip(),
+                data.get("country", "").strip(),
+                budget,
+                interest,
+                data.get("preferred_lot_or_area", "").strip(),
+                data.get("message", "").strip(),
+                lead_status,
+            ),
+        )
+        lead_id = cursor.lastrowid
+        conn.execute(
+            "INSERT INTO outbound_emails (lead_id, recipient_email, subject, body, status) VALUES (?, ?, ?, ?, 'queued')",
+            (lead_id, data.get("email", "").strip(), WELCOME_EMAIL_SUBJECT, WELCOME_EMAIL_BODY),
+        )
+        conn.commit()
+        conn.close()
+
+        json_response(self, HTTPStatus.OK, {"success": True, "message": SUCCESS_MESSAGE, "lead_status": lead_status})
+
+    def _handle_list_leads(self, query: str) -> None:
+        parsed = parse_qs(query)
+        q = (parsed.get("q", [""])[0] or "").strip()
+        status = (parsed.get("status", [""])[0] or "").strip()
+
+        filters = []
+        params = []
+        if q:
+            filters.append("(full_name LIKE ? OR email LIKE ?)")
+            params.extend([f"%{q}%", f"%{q}%"])
+        if status:
+            filters.append("lead_status = ?")
+            params.append(status)
+
+        where = f" WHERE {' AND '.join(filters)}" if filters else ""
+        sql = (
+            "SELECT id, full_name, email, phone, country, budget, interest_type, "
+            "preferred_lot_or_area, message, lead_status, created_at "
+            f"FROM leads{where} ORDER BY datetime(created_at) DESC"
+        )
+        conn = get_db_connection()
+        rows = conn.execute(sql, params).fetchall()
+        conn.close()
+        json_response(self, HTTPStatus.OK, {"leads": [dict(r) for r in rows]})
+
+    def _send_file(self, path: Path, content_type: str) -> None:
+        body = path.read_bytes()
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
 
 
-@app.route("/api/health")
-def health() -> Any:
-    return jsonify({"status": "ok"})
-
-
-@app.route("/api/welcome-template")
-def welcome_template() -> Any:
-    return jsonify({"subject": WELCOME_EMAIL_SUBJECT, "body": WELCOME_EMAIL_BODY})
-
-
-@app.route("/api/leads", methods=["POST"])
-def create_lead() -> Any:
-    data = request.get_json(silent=True) or {}
-    required = ["full_name", "email", "phone", "country", "budget", "interest_type"]
-    missing = [field for field in required if not str(data.get(field, "")).strip()]
-    if missing:
-        return jsonify({"success": False, "message": f"Missing required fields: {', '.join(missing)}"}), 400
-
-    try:
-        budget = float(data["budget"])
-    except (TypeError, ValueError):
-        return jsonify({"success": False, "message": "Estimated budget must be a valid number."}), 400
-
-    if data["interest_type"] not in INTEREST_OPTIONS:
-        return jsonify({"success": False, "message": "Invalid interest type selected."}), 400
-
-    lead_status = classify_lead_status(budget)
-
-    conn = get_db_connection()
-    cursor = conn.execute(
-        """
-        INSERT INTO leads (
-            full_name, email, phone, country, budget, interest_type,
-            preferred_lot_or_area, message, lead_status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            data.get("full_name", "").strip(),
-            data.get("email", "").strip(),
-            data.get("phone", "").strip(),
-            data.get("country", "").strip(),
-            budget,
-            data.get("interest_type", "").strip(),
-            data.get("preferred_lot_or_area", "").strip(),
-            data.get("message", "").strip(),
-            lead_status,
-        ),
-    )
-    lead_id = cursor.lastrowid
-
-    conn.execute(
-        """
-        INSERT INTO outbound_emails (lead_id, recipient_email, subject, body, status)
-        VALUES (?, ?, ?, ?, 'queued')
-        """,
-        (lead_id, data.get("email", "").strip(), WELCOME_EMAIL_SUBJECT, WELCOME_EMAIL_BODY),
-    )
-
-    conn.commit()
-    conn.close()
-
-    return jsonify(
-        {
-            "success": True,
-            "message": SUCCESS_MESSAGE,
-            "lead_status": lead_status,
-        }
-    )
-
-
-@app.route("/api/leads", methods=["GET"])
-def list_leads() -> Any:
-    q = request.args.get("q", "").strip()
-    status = request.args.get("status", "").strip()
-
-    filters = []
-    params: list[Any] = []
-
-    if q:
-        filters.append("(full_name LIKE ? OR email LIKE ?)")
-        params.extend([f"%{q}%", f"%{q}%"])
-
-    if status:
-        filters.append("lead_status = ?")
-        params.append(status)
-
-    where = f"WHERE {' AND '.join(filters)}" if filters else ""
-    sql = f"""
-        SELECT id, full_name, email, phone, country, budget, interest_type,
-               preferred_lot_or_area, message, lead_status, created_at
-        FROM leads
-        {where}
-        ORDER BY datetime(created_at) DESC
-    """
-
-    conn = get_db_connection()
-    rows = conn.execute(sql, params).fetchall()
-    conn.close()
-
-    leads = [dict(row) for row in rows]
-    return jsonify({"leads": leads})
+def run() -> None:
+    init_db()
+    seed_data()
+    server = ThreadingHTTPServer(("0.0.0.0", 5000), AppHandler)
+    print("Server running on http://127.0.0.1:5000")
+    server.serve_forever()
 
 
 if __name__ == "__main__":
-    init_db()
-    seed_data()
-    app.run(debug=True)
-else:
-    init_db()
-    seed_data()
+    run()
