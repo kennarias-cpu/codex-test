@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -155,7 +156,7 @@ class AppHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = parsed.path
 
-        if path == "/":
+        if path in {"/", "/index.html", "/preview"}:
             self._send_file(TEMPLATES_DIR / "index.html", "text/html; charset=utf-8")
             return
         if path == "/admin":
@@ -285,8 +286,9 @@ class AppHandler(BaseHTTPRequestHandler):
 def run() -> None:
     init_db()
     seed_data()
-    server = ThreadingHTTPServer(("0.0.0.0", 5000), AppHandler)
-    print("Server running on http://127.0.0.1:5000")
+    port = int(os.environ.get("PORT", "5000"))
+    server = ThreadingHTTPServer(("0.0.0.0", port), AppHandler)
+    print(f"Server running on http://127.0.0.1:{port}")
     server.serve_forever()
 
 

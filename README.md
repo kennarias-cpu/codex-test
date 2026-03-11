@@ -36,7 +36,7 @@ python3 app.py
 ```
 
 Then open:
-- Landing page: `http://127.0.0.1:5000/`
+- Landing page: `http://127.0.0.1:5000/` (also works with `/index.html` and `/preview`)
 - Admin dashboard: `http://127.0.0.1:5000/admin`
 
 ## 4) API endpoints
